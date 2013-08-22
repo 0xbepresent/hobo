@@ -11,6 +11,7 @@ import logging
 import re
 import os
 import datetime
+import sys
 from collections import namedtuple
 
 import blog_config
@@ -49,8 +50,6 @@ POSTS_PER_PAGE = blog_config.POSTS_PER_PAGE \
         if hasattr(blog_config, 'POSTS_PER_PAGE') else 15
 SUMMARY_DELIMITER = blog_config.SUMMARY_DELIMITER \
         if hasattr(blog_config, 'SUMMARY_DELIMITER') else '~~'
-USE_HEROKU = blog_config.USE_HEROKU \
-        if hasattr(blog_config, 'USE_HEROKU') else True
 DISQUS_SHORTNAME = blog_config.DISQUS_SHORTNAME \
         if hasattr(blog_config, 'DISQUS_SHORTNAME') else ''
 
@@ -197,12 +196,15 @@ def error404(code=None):
 
 # E X E C U T I O N ###########################################################
 
-
-process_blog_posts()
-if USE_HEROKU:
-    run(host="0.0.0.0", port=int(os.environ.get("PORT", 80)))
-else:
-    run(host="localhost", port=8080)
+if __name__ == "__main__":
+    process_blog_posts()
+    if len(sys.argv) == 2:
+        if sys.argv[1] == 'local':
+            run(host="localhost", port=8080)
+        elif sys.argv[1] == 'heroku':
+            run(host="0.0.0.0", port=int(os.environ.get("PORT", 80)))
+    else:
+        run(host="localhost", port=8080)
 
 
 # E N D   O F   F I L E #######################################################
